@@ -1,0 +1,368 @@
+[
+  {
+    "id": "2zuy20mt429f5t5",
+    "name": "images",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "wxxvuviz",
+        "name": "images",
+        "type": "file",
+        "system": false,
+        "required": false,
+        "options": {
+          "maxSelect": 99,
+          "maxSize": 5242880,
+          "mimeTypes": [],
+          "thumbs": [],
+          "protected": false
+        }
+      },
+      {
+        "id": "aalo5qrj",
+        "name": "user",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "user.id = @request.auth.id",
+    "updateRule": "user.id = @request.auth.id",
+    "deleteRule": "user.id = @request.auth.id",
+    "options": {}
+  },
+  {
+    "id": "rsfdgabpnxudduu",
+    "name": "chapters",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "9fjgwwly",
+        "name": "title",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "11kqmby7",
+        "name": "user",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "eunoapnw",
+        "name": "posts",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "bh63i50xs13bm6p",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "go9twzt6",
+        "name": "rating",
+        "type": "number",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null
+        }
+      },
+      {
+        "id": "pkpjrn3x",
+        "name": "visible",
+        "type": "bool",
+        "system": false,
+        "required": false,
+        "options": {}
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "user.id = @request.auth.id",
+    "updateRule": "user.id = @request.auth.id",
+    "deleteRule": "user.id = @request.auth.id",
+    "options": {}
+  },
+  {
+    "id": "_pb_users_auth_",
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "schema": [
+      {
+        "id": "users_name",
+        "name": "name",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "users_avatar",
+        "name": "avatar",
+        "type": "file",
+        "system": false,
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/gif",
+            "image/webp"
+          ],
+          "thumbs": null,
+          "protected": false
+        }
+      },
+      {
+        "id": "uc9ve2gc",
+        "name": "favorite_posts",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "bh63i50xs13bm6p",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "w74petkd",
+        "name": "favorite_chapters",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "rsfdgabpnxudduu",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "quluyrsj",
+        "name": "uploaded_images",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "2zuy20mt429f5t5",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "v7uh80kc",
+        "name": "course",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "p9psll8d",
+        "name": "campus",
+        "type": "select",
+        "system": false,
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "Apucarana",
+            "Campo Mourão",
+            "Cornélio Procópio",
+            "Curitiba",
+            "Dois Vizinhos",
+            "Francisco Beltrão",
+            "Guarapuava",
+            "Londrina",
+            "Medianeira",
+            "Pato Branco",
+            "Ponta Grossa",
+            "Santa Helena",
+            "Toledo"
+          ]
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "id = @request.auth.id",
+    "viewRule": "id = @request.auth.id",
+    "createRule": "",
+    "updateRule": "id = @request.auth.id",
+    "deleteRule": "id = @request.auth.id",
+    "options": {
+      "allowEmailAuth": true,
+      "allowOAuth2Auth": true,
+      "allowUsernameAuth": true,
+      "exceptEmailDomains": null,
+      "manageRule": null,
+      "minPasswordLength": 8,
+      "onlyEmailDomains": null,
+      "requireEmail": false
+    }
+  },
+  {
+    "id": "bh63i50xs13bm6p",
+    "name": "posts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "7cd0pk88",
+        "name": "title",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      },
+      {
+        "id": "7uwedcpz",
+        "name": "slug",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": 1,
+          "max": null,
+          "pattern": "^[a-z0-9\\-]+$"
+        }
+      },
+      {
+        "id": "ppxvzhau",
+        "name": "user",
+        "type": "relation",
+        "system": false,
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "6vrt5n6u",
+        "name": "rating",
+        "type": "number",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null
+        }
+      },
+      {
+        "id": "demdvkdc",
+        "name": "visible",
+        "type": "bool",
+        "system": false,
+        "required": false,
+        "options": {}
+      },
+      {
+        "id": "w6b4mddo",
+        "name": "document",
+        "type": "file",
+        "system": false,
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "text/plain"
+          ],
+          "thumbs": [],
+          "protected": false
+        }
+      },
+      {
+        "id": "driskpvz",
+        "name": "liked_by",
+        "type": "relation",
+        "system": false,
+        "required": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": null,
+          "displayFields": []
+        }
+      },
+      {
+        "id": "vxgzjm0z",
+        "name": "tags",
+        "type": "text",
+        "system": false,
+        "required": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "user.id = @request.auth.id",
+    "updateRule": "user.id = @request.auth.id",
+    "deleteRule": "user.id = @request.auth.id",
+    "options": {}
+  }
+]
