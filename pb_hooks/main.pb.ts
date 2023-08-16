@@ -19,6 +19,9 @@ onRecordAfterUpdateRequest((e) => {
     $app.dao()?.saveRecord(record);
   }
 }, "posts");
+*/
+
+/*
 
 // fires when the "post" collection is created
 onRecordAfterCreateRequest((e) => {
