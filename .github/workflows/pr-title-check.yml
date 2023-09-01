@@ -1,0 +1,28 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - edited
+    branches:
+      - release
+
+jobs:
+  title-check:
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_STEP_DEBUG: true
+    steps:
+      - name: Check PR Title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        id: check-tag
+        run: |
+          if [[ ${{ github.event.pull_request.title }} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+          else
+              echo "PR title is not valid. It should match the pattern vx.y.z"
+              exit 1
+          fi
