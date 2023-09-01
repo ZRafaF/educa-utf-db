@@ -1,0 +1,10 @@
+Dockerfile
+.dockerignore
+README.md
+.next
+.git
+.env.local
+.prettierignore
+pb_data/
+README.md
+CHANGELOG.md
