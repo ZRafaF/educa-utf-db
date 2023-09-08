@@ -30,8 +30,8 @@ RUN unzip /tmp/pb.zip -d /pb/
 # uncomment to copy the local pb_hooks dir into the image
 COPY ./pb_hooks /pb/pb_hooks
 
-VOLUME /pb_data
+VOLUME /pb/pb_data
 EXPOSE 8090
 
 # start PocketBase
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8090", "--dir=/pb_data", "--hooksDir=/pb/pb_hooks"]
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8090"]
