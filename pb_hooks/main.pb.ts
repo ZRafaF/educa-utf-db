@@ -40,11 +40,15 @@ onRecordAfterCreateRequest((e) => {
 */
 
 // fires only for "posts" and "chapters" collections
-onRecordViewRequest((e) => {
-  const record = e.record;
-  if (record) {
-    let currentViews = record.getInt("views");
-    record.set("views", currentViews + 1);
-    $app.dao()?.saveRecord(record);
-  }
-}, "posts, chapters");
+onRecordViewRequest(
+  (e) => {
+    const record = e.record;
+    if (record) {
+      let currentViews = record.getInt("views");
+      record.set("views", currentViews + 1);
+      $app.dao()?.saveRecord(record);
+    }
+  },
+  "posts",
+  "chapters"
+);
