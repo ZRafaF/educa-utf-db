@@ -39,7 +39,7 @@ onRecordAfterCreateRequest((e) => {
 }, "posts");
 */
 
-// fires only for "posts" and "chapters" collections
+// fires only for "articles" and "chapters" collections
 onRecordViewRequest(
   (e) => {
     const record = e.record;
@@ -49,6 +49,6 @@ onRecordViewRequest(
       $app.dao()?.saveRecord(record);
     }
   },
-  "posts",
+  "articles",
   "chapters"
 );
