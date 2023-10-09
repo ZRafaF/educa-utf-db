@@ -1,3 +1,81 @@
+## v0.18.10
+
+- Added global `raw` template function to allow outputting raw/verbatim HTML content in the JSVM templates ([#3476](https://github.com/pocketbase/pocketbase/discussions/3476)).
+  ```
+  {{.description|raw}}
+  ```
+
+- Trimmed view query semicolon and allowed single quotes for column aliases ([#3450](https://github.com/pocketbase/pocketbase/issues/3450#issuecomment-1748044641)).
+  _Single quotes are usually [not a valid identifier quote characters](https://www.sqlite.org/lang_keywords.html), but for resilience and compatibility reasons SQLite allows them in some contexts where only an identifier is expected._
+
+- Bumped the GitHub action to use [min Go 1.21.2](https://github.com/golang/go/issues?q=milestone%3AGo1.21.2) (_the fixed issues are not critical as they are mostly related to the compiler/build tools_).
+
+
+## v0.18.9
+
+- Fixed empty thumbs directories not getting deleted on Windows after deleting a record img file ([#3382](https://github.com/pocketbase/pocketbase/issues/3382)).
+
+- Updated the generated JSVM typings to silent the TS warnings when trying to access a field/method in a Go->TS interface.
+
+
+## v0.18.8
+
+- Minor fix for the View collections API Preview and Admin UI listings incorrectly showing the `created` and `updated` fields as `N/A` when the view query doesn't have them.
+
+
+## v0.18.7
+
+- Fixed JS error in the Admin UI when listing records with invalid `relation` field value ([#3372](https://github.com/pocketbase/pocketbase/issues/3372)).
+  _This could happen usually only during custom SQL import scripts or when directly modifying the record field value without data validations._
+
+- Updated Go deps and the generated JSVM types.
+
+
+## v0.18.6
+
+- Return the response headers and cookies in the `$http.send()` result ([#3310](https://github.com/pocketbase/pocketbase/discussions/3310)).
+
+- Added more descriptive internal error message for missing user/admin email on password reset requests.
+
+- Updated Go deps.
+
+
+## v0.18.5
+
+- Fixed minor Admin UI JS error in the auth collection options panel introduced with the change from v0.18.4.
+
+
+## v0.18.4
+
+- Added escape character (`\`) support in the Admin UI to allow using `select` field values with comma ([#2197](https://github.com/pocketbase/pocketbase/discussions/2197)).
+
+
+## v0.18.3
+
+- Exposed a global JSVM `readerToString(reader)` helper function to allow reading Go `io.Reader` values ([#3273](https://github.com/pocketbase/pocketbase/discussions/3273)).
+
+- Bumped the GitHub action to use [min Go 1.21.1](https://github.com/golang/go/issues?q=milestone%3AGo1.21.1+label%3ACherryPickApproved) for the prebuilt executable since it contains some minor `html/template` and `net/http` security fixes.
+
+
+## v0.18.2
+
+- Prevent breaking the record form in the Admin UI in case the browser's localStorage quota has been exceeded when uploading or storing large `editor` values ([#3265](https://github.com/pocketbase/pocketbase/issues/3265)).
+
+- Updated docs and missing JSVM typings.
+
+- Exposed additional crypto primitives under the `$security.*` JSVM namespace ([#3273](https://github.com/pocketbase/pocketbase/discussions/3273)):
+  ```js
+  // HMAC with SHA256
+  $security.hs256("hello", "secret")
+
+  // HMAC with SHA512
+  $security.hs512("hello", "secret")
+
+  // compare 2 strings with a constant time
+  $security.equal(hash1, hash2)
+  ```
+
+
 ## v0.18.1
 
 - Excluded the local temp dir from the backups ([#3261](https://github.com/pocketbase/pocketbase/issues/3261)).
@@ -90,6 +168,8 @@
   $security.sha256(text)
   $security.sha512(text)
   ```
+
+- ⚠️ Deprecated `RelationOptions.DisplayFields` in favor of the new `SchemaField.Presentable` option to avoid the duplication when a single collection is referenced more than once and/or by multiple other collections.
 
 - ⚠️ Fill the `LastVerificationSentAt` and `LastResetSentAt` fields only after a successfull email send ([#3121](https://github.com/pocketbase/pocketbase/issues/3121)).
 
