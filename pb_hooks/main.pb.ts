@@ -52,3 +52,20 @@ onRecordViewRequest(
   "articles",
   "chapters"
 );
+
+// Intercepts article creation and creates an attachment relation
+onRecordAfterCreateRequest((e) => {
+  const record = e.record;
+  if (record) {
+    const collection = $app.dao()?.findCollectionByNameOrId("attachments");
+    const attachmentRecord = new Record(collection, {
+      id: record.id,
+      article: record.id,
+      user: record.get("user"),
+    });
+
+    $app.dao()?.saveRecord(attachmentRecord);
+    record.set("attachments", record.id);
+    $app.dao()?.saveRecord(record);
+  }
+}, "articles");
