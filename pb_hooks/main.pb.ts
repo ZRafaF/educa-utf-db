@@ -69,3 +69,27 @@ onRecordAfterCreateRequest((e) => {
     $app.dao()?.saveRecord(record);
   }
 }, "articles");
+
+// Handles image optimization
+onRecordAfterUpdateRequest((e) => {
+  //console.log(JSON.stringify($filepath.base("1")));
+
+  const cmd = $os.cmd("ls");
+
+  // execute the command and return its standard output as string
+  const output = cmd?.output();
+
+  console.log(output);
+
+  // e.uploadedFiles.files.forEach((file) => {
+  //   const path =
+  //     $app.dataDir() + "/" + e.record?.baseFilesPath() + `/${file.name}`;
+  //   console.log(path);
+  //   const myFile = $filepath.dir(path);
+
+  //   $os.remove(path);
+  //   console.log(JSON.stringify(myFile));
+  // });
+
+  // console.log(JSON.stringify(e.uploadedFiles));
+}, "attachments");
