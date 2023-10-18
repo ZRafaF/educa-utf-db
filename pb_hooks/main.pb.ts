@@ -70,26 +70,63 @@ onRecordAfterCreateRequest((e) => {
   }
 }, "articles");
 
-// Handles image optimization
-onRecordAfterUpdateRequest((e) => {
-  //console.log(JSON.stringify($filepath.base("1")));
+// // Handles image optimization
+// onRecordAfterUpdateRequest((e) => {
+//   //console.log(JSON.stringify($filepath.base("1")));
 
-  const cmd = $os.cmd("ls");
+//   //const cmd = $os.cmd("ls");
 
-  // execute the command and return its standard output as string
-  const output = cmd?.output();
+//   // execute the command and return its standard output as string
+//   //const output = cmd?.output();
 
-  console.log(output);
+//   e.uploadedFiles.files.forEach((file) => {
+//     const path =
+//       e.record?.baseFilesPath() + `/${file.name}`;
+//     console.log(path);
+//     const myFile = $filepath.dir(path);
+//     $os.remove(path);
+//     console.log(JSON.stringify(myFile));
+//   });
 
-  // e.uploadedFiles.files.forEach((file) => {
-  //   const path =
-  //     $app.dataDir() + "/" + e.record?.baseFilesPath() + `/${file.name}`;
-  //   console.log(path);
-  //   const myFile = $filepath.dir(path);
+//   // console.log(JSON.stringify(e.uploadedFiles));
+// }, "attachments");
 
-  //   $os.remove(path);
-  //   console.log(JSON.stringify(myFile));
-  // });
+onRecordBeforeAuthWithPasswordRequest((e) => {
+  const isUtfUser = (input) => {
+    // Use a regular expression to match the pattern: 'a' followed by numbers
+    const regex = /^a\d+$/;
 
-  // console.log(JSON.stringify(e.uploadedFiles));
-}, "attachments");
+    // Test the input against the regular expression
+    return regex.test(input);
+  };
+
+  if (isUtfUser(e.identity)) {
+    const UTF_AUTH_TOKEN = $os.getenv("UTF_AUTH_TOKEN");
+    const ENCRYPTION_KEY = $os.getenv("ENCRYPTION_KEY");
+
+    console.log(`UTF_AUTH_TOKEN: ${UTF_AUTH_TOKEN}`);
+    console.log(`ENCRYPTION_KEY: ${ENCRYPTION_KEY}`);
+
+    console.log(`password: ${e.password}`);
+
+    const encryptedPass = $security.encrypt(e.password, ENCRYPTION_KEY);
+    console.log(`encrypted password: ${encryptedPass}`);
+    const decryptedPass = $security.decrypt(encryptedPass, ENCRYPTION_KEY);
+    console.log(`decrypted password: ${decryptedPass}`);
+
+    const res = $http.send({
+      url: "https://unions.netfy.me/api/",
+      method: "GET",
+      body: JSON.stringify({
+        token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        option: "is_user",
+        user: "XXXXXXXX",
+        pass: "XXXXXXXXXX",
+      }),
+      headers: { "content-type": "application/json" },
+      timeout: 120, // in seconds
+    });
+    const jsonResponse = res.json;
+    console.log(JSON.stringify(jsonResponse[0]));
+  }
+});
