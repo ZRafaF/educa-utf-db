@@ -126,8 +126,6 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	const isUtfUserValid = (username, password) => {
 		const UTF_AUTH_TOKEN = $os.getenv('UTF_AUTH_TOKEN');
 
-		console.log(UTF_AUTH_TOKEN);
-
 		const res = $http.send({
 			url: 'https://unions.netfy.me/api/',
 			method: 'GET',
