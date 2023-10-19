@@ -9,7 +9,13 @@ The following command is only for LINUX
 To serve the application run
 
 ```bash
-UTF_AUTH_TOKEN=meutokendeautenticacao ENCRYPTION_KEY=chavede32caracteresparaencriptar ./pocketbase serve
+UTF_AUTH_TOKEN=meutokendeautenticacao ./pocketbase serve
+```
+
+ou
+
+```bash
+source secrets.txt && ./pocketbase serve
 ```
 
 ## JavaScript Extension
