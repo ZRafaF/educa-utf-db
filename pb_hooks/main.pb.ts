@@ -108,12 +108,16 @@ onRecordBeforeAuthWithPasswordRequest((e) => {
 
 routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	const createNewUtfUser = (username, usersRecord) => {
+		// Creates a new user and assigns a random string as its password
+		const randomPass = $security.randomString(32);
+		console.log(randomPass);
+
 		const form = new RecordUpsertForm($app, usersRecord);
 		form.loadData({
 			username: username,
 			name: `UTF_${username}`,
-			password: 'utf_pass!',
-			passwordConfirm: 'utf_pass!',
+			password: randomPass,
+			passwordConfirm: randomPass,
 		});
 
 		form.submit();
@@ -121,6 +125,8 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 
 	const isUtfUserValid = (username, password) => {
 		const UTF_AUTH_TOKEN = $os.getenv('UTF_AUTH_TOKEN');
+
+		console.log(UTF_AUTH_TOKEN);
 
 		const res = $http.send({
 			url: 'https://unions.netfy.me/api/',
