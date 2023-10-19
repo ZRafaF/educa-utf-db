@@ -1,3 +1,40 @@
+## v0.19.0
+
+- Added Patreon OAuth2 provider ([#3323](https://github.com/pocketbase/pocketbase/pull/3323); thanks @ghostdevv).
+
+- Added mailcow OAuth2 provider ([#3364](https://github.com/pocketbase/pocketbase/pull/3364); thanks @thisni1s).
+
+- Added support for `:excerpt(max, withEllipsis?)` `fields` modifier that will return a short plain text version of any string value (html tags are stripped).
+    This could be used to minimize the downloaded json data when listing records with large `editor` html values.
+    ```js
+    await pb.collection("example").getList(1, 20, {
+      "fields": "*,description:excerpt(100)"
+    })
+    ```
+
+- Several Admin UI improvements:
+  - Count the total records separately to speed up the query execution for large datasets ([#3344](https://github.com/pocketbase/pocketbase/issues/3344)).
+  - Enclosed the listing scrolling area within the table so that the horizontal scrollbar and table header are always reachable ([#2505](https://github.com/pocketbase/pocketbase/issues/2505)).
+  - Allowed opening the record preview/update form via direct URL ([#2682](https://github.com/pocketbase/pocketbase/discussions/2682)).
+  - Reintroduced the local `date` field tooltip on hover.
+  - Speed up the listing loading times for records with large `editor` field values by initially fetching only a partial of the records data (the complete record data is loaded on record preview/update).
+  - Added "Media library" (collection images picker) support for the TinyMCE `editor` field.
+  - Added support to "pin" collections in the sidebar.
+  - Added support to manually resize the collections sidebar.
+  - More clear "Nonempty" field label style.
+  - Removed the legacy `.woff` and `.ttf` fonts and keep only `.woff2`.
+
+- Removed the explicit `Content-Type` charset from the realtime response due to compatibility issues with IIS ([#3461](https://github.com/pocketbase/pocketbase/issues/3461)).
+  _The `Connection:keep-alive` realtime response header was also removed as it is not really used with HTTP2 anyway._
+
+- Added new JSVM bindings:
+  - `new Cookie({ ... })` constructor for creating `*http.Cookie` equivalent value.
+  - `new SubscriptionMessage({ ... })` constructor for creating a custom realtime subscription payload.
+  - Soft-deprecated `$os.exec()` in favour of `$os.cmd()` to make it more clear that the call only prepares the command and doesn't execute it.
+
+- ⚠️ Bumped the min required Go version to 1.19.
+
+
 ## v0.18.10
 
 - Added global `raw` template function to allow outputting raw/verbatim HTML content in the JSVM templates ([#3476](https://github.com/pocketbase/pocketbase/discussions/3476)).

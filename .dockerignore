@@ -8,3 +8,5 @@ README.md
 pb_data/
 README.md
 CHANGELOG.md
+.env
+secrets.txt
