@@ -70,42 +70,6 @@ onRecordAfterCreateRequest((e) => {
 	}
 }, 'articles');
 
-// // Handles image optimization
-// onRecordAfterUpdateRequest((e) => {
-//   //console.log(JSON.stringify($filepath.base("1")));
-
-//   //const cmd = $os.cmd("ls");
-
-//   // execute the command and return its standard output as string
-//   //const output = cmd?.output();
-
-//   e.uploadedFiles.files.forEach((file) => {
-//     const path =
-//       e.record?.baseFilesPath() + `/${file.name}`;
-//     console.log(path);
-//     const myFile = $filepath.dir(path);
-//     $os.remove(path);
-//     console.log(JSON.stringify(myFile));
-//   });
-
-//   // console.log(JSON.stringify(e.uploadedFiles));
-// }, "attachments");
-
-onRecordBeforeAuthWithPasswordRequest((e) => {
-	const isUtfUser = (input) => {
-		// Pattern: 'a' followed by numbers
-		const regex = /^a\d+$/;
-
-		return regex.test(input);
-	};
-
-	if (isUtfUser(e.identity)) {
-		throw new BadRequestError(
-			"Invalid username. This is a UTFPR user, UTFPR authentication should make a POST request to 'api/educautf/utfpr-auth'"
-		);
-	}
-}, 'users');
-
 routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	const createNewUtfUser = (username, usersRecord) => {
 		// Creates a new user and assigns a random string as its password
