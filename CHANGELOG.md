@@ -1,3 +1,39 @@
+## v0.19.4
+
+- Fixed TinyMCE source code viewer textarea styles ([#3715](https://github.com/pocketbase/pocketbase/issues/3715)).
+
+- Fixed `text` field min/max validators to properly count multi-byte characters ([#3735](https://github.com/pocketbase/pocketbase/issues/3735)).
+
+- Allowed hyphens in `username` ([#3697](https://github.com/pocketbase/pocketbase/issues/3697)).
+  _More control over the system fields settings will be available in the future._
+
+- Updated the JSVM generated types to use directly the value type instead of `* | undefined` union in functions/methods return declarations.
+
+
+## v0.19.3
+
+- Added the release notes to the console output of `./pocketbase update` ([#3685](https://github.com/pocketbase/pocketbase/discussions/3685)).
+
+- Added missing documention for the JSVM `$mails.*` bindings.
+
+- Relaxed the OAuth2 redirect url validation to allow any string value ([#3689](https://github.com/pocketbase/pocketbase/pull/3689); thanks @sergeypdev).
+  _Note that the redirect url format is still bound to the accepted values by the specific OAuth2 provider._
+
+
+## v0.19.2
+
+- Updated the JSVM generated types ([#3627](https://github.com/pocketbase/pocketbase/issues/3627), [#3662](https://github.com/pocketbase/pocketbase/issues/3662)).
+
+
+## v0.19.1
+
+- Fixed `tokenizer.Scan()/ScanAll()` to ignore the separators from the default trim cutset.
+  An option to return also the empty found tokens was also added via `Tokenizer.KeepEmptyTokens(true)`.
+  _This should fix the parsing of whitespace charactes around view query column names when no quotes are used ([#3616](https://github.com/pocketbase/pocketbase/discussions/3616#discussioncomment-7398564))._
+
+- Fixed the `:excerpt(max, withEllipsis?)` `field` query param modifier to properly add space to the generated text fragment after block tags.
+
+
 ## v0.19.0
 
 - Added Patreon OAuth2 provider ([#3323](https://github.com/pocketbase/pocketbase/pull/3323); thanks @ghostdevv).
