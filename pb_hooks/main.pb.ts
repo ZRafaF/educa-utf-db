@@ -4,48 +4,17 @@
 // https://opensource.org/licenses/MIT
 /// <reference path="../pb_data/types.d.ts" />
 
-/*
-// fires when the "post" collection is updated
-onRecordAfterUpdateRequest((e) => {
-  const record = e.record;
-  if (record) {
-    const formattedTitle = record
-      .get("title")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "")
-      .toLowerCase();
-    const newSlug = formattedTitle + "-" + record.id;
-    record.set("slug", newSlug);
-    $app.dao()?.saveRecord(record);
-  }
-}, "posts");
-*/
-
-/*
-
-// fires when the "post" collection is created
-onRecordAfterCreateRequest((e) => {
-  const record = e.record;
-  if (record) {
-    const formattedTitle = record
-      .get("title")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "")
-      .toLowerCase();
-    const newSlug = formattedTitle + "-" + record.id;
-    record.set("slug", newSlug);
-    $app.dao()?.saveRecord(record);
-  }
-}, "posts");
-*/
 
 // fires only for "articles" and "chapters" collections
 onRecordViewRequest(
 	(e) => {
 		const record = e.record;
 		if (record) {
-			let currentViews = record.getInt('views');
-			record.set('views', currentViews + 1);
+			record.set('views', record.getInt('views') + 1);
+			record.set('views_day', record.getInt('views_day') + 1);
+			record.set('views_week', record.getInt('views_week') + 1);
+			record.set('views_month', record.getInt('views_month') + 1);
+
 			$app.dao()?.saveRecord(record);
 		}
 	},
@@ -149,3 +118,97 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	// return c.json(200, { token: newToken, record: authUserRecord });
 	return $apis.recordAuthResponse($app, c, authUserRecord, null);
 });
+
+
+cronAdd("midnight_update", "@midnight", () => {
+    console.log("midnight_update!");
+
+	const resetField = (collectionName, fieldName)=>{
+		const collection = $app.dao().findCollectionByNameOrId(collectionName);
+		console.log(`Deleting: ${collectionName}, ${fieldName}`);
+		$app.dao().runInTransaction((txDao) => {
+			const fieldSchema = collection.schema.fields()
+			const found = fieldSchema.find((element) => element?.name === fieldName);
+			if(found){
+				collection.schema.removeField(found.id);
+				txDao.saveCollection(collection)
+			}
+			
+			collection.schema.addField(new SchemaField({"name":fieldName,"type":"number","required":false,"presentable":false,"unique":false,"options":{"min":0,"max":null,"noDecimal":true}}));
+			txDao.saveCollection(collection)
+		})
+	}
+	
+	resetField("articles", "views_day")
+	resetField("chapters", "views_day")
+
+});
+
+cronAdd("weekly_update", "@weekly", () => {
+    console.log("weekly_update!");
+
+	const resetField = (collectionName, fieldName)=>{
+		const collection = $app.dao().findCollectionByNameOrId(collectionName);
+		console.log(`Deleting: ${collectionName}, ${fieldName}`);
+		$app.dao().runInTransaction((txDao) => {
+			const fieldSchema = collection.schema.fields()
+			const found = fieldSchema.find((element) => element?.name === fieldName);
+			if(found){
+				collection.schema.removeField(found.id);
+				txDao.saveCollection(collection)
+			}
+			
+			collection.schema.addField(new SchemaField({"name":fieldName,"type":"number","required":false,"presentable":false,"unique":false,"options":{"min":0,"max":null,"noDecimal":true}}));
+			txDao.saveCollection(collection)
+		})
+	}
+	
+	resetField("articles", "views_week")
+	resetField("chapters", "views_week")
+
+});
+
+cronAdd("monthly_update", "@monthly", () => {
+    console.log("monthly_update!");
+
+	const resetField = (collectionName, fieldName)=>{
+		const collection = $app.dao().findCollectionByNameOrId(collectionName);
+		console.log(`Deleting: ${collectionName}, ${fieldName}`);
+		$app.dao().runInTransaction((txDao) => {
+			const fieldSchema = collection.schema.fields()
+			const found = fieldSchema.find((element) => element?.name === fieldName);
+			if(found){
+				collection.schema.removeField(found.id);
+				txDao.saveCollection(collection)
+			}
+			
+			collection.schema.addField(new SchemaField({"name":fieldName,"type":"number","required":false,"presentable":false,"unique":false,"options":{"min":0,"max":null,"noDecimal":true}}));
+			txDao.saveCollection(collection)
+		})
+	}
+	
+	resetField("articles", "views_month")
+	resetField("chapters", "views_month")
+});
+
+
+// routerAdd('GET', 'api/tes', (c) => {
+// 	const resetField = (collectionName, fieldName)=>{
+// 		const collection = $app.dao().findCollectionByNameOrId(collectionName);
+// 		console.log(`Deleting: ${collectionName}, ${fieldName}`);
+// 		$app.dao().runInTransaction((txDao) => {
+// 			const fieldSchema = collection.schema.fields()
+// 			const found = fieldSchema.find((element) => element?.name === fieldName);
+// 			if(found){
+// 				collection.schema.removeField(found.id);
+// 				txDao.saveCollection(collection)
+// 			}
+			
+// 			collection.schema.addField(new SchemaField({"name":fieldName,"type":"number","required":false,"presentable":false,"unique":false,"options":{"min":0,"max":null,"noDecimal":true}}));
+// 			txDao.saveCollection(collection)
+// 		})
+// 	}
+	
+// 	resetField("articles", "views_day")
+// 	resetField("chapters", "views_day")
+// });
