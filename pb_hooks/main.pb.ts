@@ -4,7 +4,6 @@
 // https://opensource.org/licenses/MIT
 /// <reference path="../pb_data/types.d.ts" />
 
-
 // Intercepts article creation and creates an attachment relation
 onRecordAfterCreateRequest((e) => {
 	const record = e.record;
@@ -102,71 +101,70 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	return $apis.recordAuthResponse($app, c, authUserRecord, null);
 });
 
-
-cronAdd("midnight_update", "@midnight", () => {
+cronAdd('midnight_update', '@midnight', () => {
 	$app.dao().runInTransaction((txDao) => {
-
 		const now = new DateTime(); // current date and time
 
 		const maxAgeInDays = 30; // Stores the view history for 1 month
 
-		const maxCreatedDate = new DateTime(now.time().addDate(0,0,-maxAgeInDays).string());
+		const maxCreatedDate = new DateTime(
+			now.time().addDate(0, 0, -maxAgeInDays).string()
+		);
 
 		const records = txDao.findRecordsByFilter(
-			"latest_views",                                 // collection
-			"created <= {:maxCreated}", 					// filter
-			"+created",                                   	// sort
-			0,                                            	// limit
-			0,                                             	// limit
-			{ maxCreated: maxCreatedDate },
-		)
+			'latest_views', // collection
+			'created <= {:maxCreated}', // filter
+			'+created', // sort
+			0, // limit
+			0, // limit
+			{ maxCreated: maxCreatedDate }
+		);
 
 		console.log(`Deleting ${records.length} records`);
 
-		records.forEach(record=>{
-			if(record){
+		records.forEach((record) => {
+			if (record) {
 				txDao.deleteRecord(record);
 			}
-		})
-	})
-
+		});
+	});
 });
 
-
 routerAdd('POST', 'api/educautf/views', (c) => {
-	
 	const data = $apis.requestInfo(c)?.data;
-	if (data === undefined) return c.json(400, {message: "data is undefined!"});
+	if (data === undefined)
+		return c.json(400, { message: 'data is undefined!' });
 
-	const collectionName = data.collectionName; 	// articles or chapters
-	const recordId = data.recordId;					// record id
+	const collectionName = data.collectionName; // articles or chapters
+	const recordId = data.recordId; // record id
 
 	if (collectionName === undefined || recordId === undefined) {
 		throw new BadRequestError('Invalid request');
 	}
 
 	$app.dao().runInTransaction((txDao) => {
-		const record = txDao.findRecordById(collectionName, recordId)
+		const record = txDao.findRecordById(collectionName, recordId);
 
 		record.set('views', record.getInt('views') + 1);
 		txDao.saveRecord(record);
 
-		const latest_views_collection = txDao.findCollectionByNameOrId("latest_views")
-		
+		const latest_views_collection =
+			txDao.findCollectionByNameOrId('latest_views');
+
 		const latest_views_record = new Record(latest_views_collection, {
 			[collectionName]: record.id,
-		})
-		
-		const requestAuthor = c.get("authRecord");
+		});
+
+		const requestAuthor = c.get('authRecord');
 		if (requestAuthor) {
 			// @ts-ignore
-			latest_views_record.set("user", requestAuthor.id)
+			latest_views_record.set('user', requestAuthor.id);
 		}
 
-		txDao.saveRecord(latest_views_record)
-	})
-	
-	return c.json(200, { message: "Number of views updated!" });
+		txDao.saveRecord(latest_views_record);
+	});
+
+	return c.json(200, { message: 'Number of views updated!' });
 });
 
 /*
