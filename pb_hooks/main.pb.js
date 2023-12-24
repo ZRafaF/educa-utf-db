@@ -25,7 +25,6 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	const createNewUtfUser = (username, usersRecord) => {
 		// Creates a new user and assigns a random string as its password
 		const randomPass = $security.randomString(32);
-		console.log(randomPass);
 
 		const form = new RecordUpsertForm($app, usersRecord);
 		form.loadData({
@@ -120,13 +119,17 @@ cronAdd('midnight_update', '@midnight', () => {
 			{ maxCreated: maxCreatedDate }
 		);
 
-		console.log(`Deleting ${records.length} records`);
-
 		records.forEach((record) => {
 			if (record) {
 				txDao.deleteRecord(record);
 			}
 		});
+
+		$app.logger().info(
+			'Deleted old latest_views records',
+			'Found',
+			records.length
+		);
 	});
 });
 
@@ -167,32 +170,114 @@ routerAdd('POST', 'api/educautf/views', (c) => {
 	return c.json(200, { message: 'Number of views updated!' });
 });
 
-/*
-routerAdd('GET', 'api/tes', (c) => {
-	$app.dao().runInTransaction((txDao) => {
+// // Testing route
+// routerAdd('GET', 'api/tes', (c) => {
+// 	try {
+// 		const now = new DateTime(); // current date and time
 
+// 		const minAgeInDays = 1;
+
+// 		const minCreatedDate = new DateTime(
+// 			now.time().addDate(0, 0, -minAgeInDays).string()
+// 		);
+
+// 		const key_words_stats_record = $app.dao().findRecordsByFilter(
+// 			'key_words_stats', // collection
+// 			'articles_references = 0 && chapters_references = 0 && created <= {:minCreated}', // filter
+// 			'+created', // sort
+// 			0, // limit
+// 			0, // limit
+// 			{ minCreated: `${minCreatedDate}` } // optional filter params
+// 		);
+
+// 		const key_words_ids = [];
+
+// 		for (let key_words_stats of key_words_stats_record) {
+// 			if (key_words_stats) {
+// 				key_words_ids.push(key_words_stats.id);
+// 			}
+// 		}
+
+// 		const key_words_records = $app
+// 			.dao()
+// 			.findRecordsByIds('key_words', key_words_ids);
+
+// 		let num_of_deleted_records = 0;
+// 		for (let key_words_record of key_words_records) {
+// 			if (key_words_record) {
+// 				$app.dao().deleteRecord(key_words_record);
+// 				num_of_deleted_records++;
+// 			}
+// 		}
+
+// 		$app.logger().info(
+// 			'Deleted unreferenced key_words',
+// 			'Found',
+// 			key_words_stats_record.length,
+// 			'Deleted',
+// 			num_of_deleted_records
+// 		);
+// 	} catch (error) {
+// 		$app.logger().error(
+// 			'Error while deleting unreferenced key_words',
+// 			'error',
+// 			error
+// 		);
+// 	}
+// });
+
+// Removes old unused keywords, runs at midnight
+cronAdd('key_words_pruner', '@midnight', () => {
+	try {
 		const now = new DateTime(); // current date and time
 
-		const maxAgeInDays = 1;
+		const minAgeInDays = 1;
 
-		const maxCreatedDate = new DateTime(now.time().addDate(0,0,-maxAgeInDays).string());
+		const minCreatedDate = new DateTime(
+			now.time().addDate(0, 0, -minAgeInDays).string()
+		);
 
-		const records = txDao.findRecordsByFilter(
-			"latest_views",                                 // collection
-			"created <= {:maxCreated}", 					// filter
-			"+created",                                   	// sort
-			0,                                            	// limit
-			0,                                             	// limit
-			{ maxCreated: maxCreatedDate },
-		)
-		console.log(`Deleting ${records.length} records`);
+		const key_words_stats_record = $app.dao().findRecordsByFilter(
+			'key_words_stats', // collection
+			'articles_references = 0 && chapters_references = 0 && created <= {:minCreated}', // filter
+			'+created', // sort
+			0, // limit
+			0, // limit
+			{ minCreated: `${minCreatedDate}` } // optional filter params
+		);
 
-		records.forEach(record=>{
-			if(record){
-				txDao.deleteRecord(record);
+		const key_words_ids = [];
+
+		for (let key_words_stats of key_words_stats_record) {
+			if (key_words_stats) {
+				key_words_ids.push(key_words_stats.id);
 			}
-		})
-	})
-	
+		}
+
+		const key_words_records = $app
+			.dao()
+			.findRecordsByIds('key_words', key_words_ids);
+
+		let num_of_deleted_records = 0;
+		for (let key_words_record of key_words_records) {
+			if (key_words_record) {
+				$app.dao().deleteRecord(key_words_record);
+				num_of_deleted_records++;
+			}
+		}
+
+		$app.logger().info(
+			'Deleted unreferenced key_words',
+			'Found',
+			key_words_stats_record.length,
+			'Deleted',
+			num_of_deleted_records
+		);
+	} catch (error) {
+		$app.logger().error(
+			'Error while deleting unreferenced key_words',
+			'error',
+			error
+		);
+	}
 });
-*/
