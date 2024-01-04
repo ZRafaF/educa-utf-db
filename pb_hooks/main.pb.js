@@ -134,6 +134,10 @@ cronAdd('midnight_update', '@midnight', () => {
 });
 
 routerAdd('POST', 'api/educautf/views', (c) => {
+	function isNullOrUndefined(value) {
+		return value === undefined || value === null;
+	}
+
 	const data = $apis.requestInfo(c)?.data;
 	if (data === undefined)
 		return c.json(400, { message: 'data is undefined!' });
@@ -141,7 +145,7 @@ routerAdd('POST', 'api/educautf/views', (c) => {
 	const collectionName = data.collectionName; // articles or chapters
 	const recordId = data.recordId; // record id
 
-	if (collectionName === undefined || recordId === undefined) {
+	if (isNullOrUndefined(collectionName) || isNullOrUndefined(recordId)) {
 		throw new BadRequestError('Invalid request');
 	}
 
@@ -280,4 +284,71 @@ cronAdd('key_words_pruner', '@midnight', () => {
 			error
 		);
 	}
+});
+
+routerAdd('POST', 'api/educautf/likes', (c) => {
+	function isNullOrUndefined(value) {
+		return value === undefined || value === null;
+	}
+
+	const data = $apis.requestInfo(c)?.data;
+	if (data === undefined)
+		return c.json(400, { message: 'data is undefined!' });
+
+	const authRecord = c.get('authRecord');
+
+	const collectionName = data.collectionName; // articles or chapters
+	const recordId = data.recordId; // record id
+	const action = data.action; // add or remove
+
+	if (
+		isNullOrUndefined(collectionName) ||
+		isNullOrUndefined(recordId) ||
+		isNullOrUndefined(action)
+	) {
+		throw new BadRequestError(
+			'Invalid request, it should contain {collectionName: "articles" or "chapters", recordId: "recordId" and action: "add" or "remove"}'
+		);
+	}
+
+	if (isNullOrUndefined(authRecord)) {
+		throw new BadRequestError(
+			'Invalid request, author record is undefined.'
+		);
+	}
+
+	const fieldName = `liked_${collectionName}`;
+	let likesArray = authRecord.get(fieldName);
+
+	if (isNullOrUndefined(likesArray)) {
+		throw new BadRequestError('Invalid request, likesArray is undefined.');
+	}
+
+	const recordIsInArray = likesArray.includes(recordId);
+
+	let returnMessage = 'Record was added successfully!';
+
+	if (recordIsInArray && action === 'add')
+		returnMessage = 'Record is already in the array!';
+
+	if (!recordIsInArray && action === 'remove')
+		returnMessage = 'Record is not in the array!';
+
+	if (!recordIsInArray && action === 'add') likesArray.push(recordId);
+
+	if (recordIsInArray && action === 'remove')
+		likesArray = likesArray.filter((id) => id !== recordId);
+
+	authRecord.set(fieldName, likesArray);
+	$app.dao().saveRecord(authRecord);
+	const record = $app
+		.dao()
+		.findRecordById(`${collectionName}_stats`, recordId);
+	const likes = record.getInt('likes');
+
+	return c.json(200, {
+		message: returnMessage,
+		likes: likes,
+		userRecord: authRecord,
+	});
 });
