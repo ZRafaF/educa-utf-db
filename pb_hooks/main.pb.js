@@ -352,3 +352,108 @@ routerAdd('POST', 'api/educautf/likes', (c) => {
 		userRecord: authRecord,
 	});
 });
+
+onAfterBootstrap((e) => {
+	function slugify(str) {
+		return String(str)
+			.normalize('NFKD') // split accented characters into their base characters and diacritical marks
+			.replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+			.trim() // trim leading or trailing whitespace
+			.toLowerCase() // convert to lowercase
+			.replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+			.replace(/\s+/g, '-') // replace spaces with hyphens
+			.replace(/-+/g, '-'); // remove consecutive hyphens
+	}
+
+	const articlesRecords = $app.dao().findRecordsByFilter(
+		'articles', // collection
+		"slug = ''", // filter
+		'+created', // sort
+		0, // limit
+		0 // limit
+	);
+
+	const chaptersRecords = $app.dao().findRecordsByFilter(
+		'chapters', // collection
+		"slug = ''", // filter
+		'+created', // sort
+		0, // limit
+		0 // limit
+	);
+
+	for (const record of articlesRecords) {
+		const title = record.get('title');
+		const slug = slugify(title);
+		record.set('slug', slug);
+
+		$app.dao().saveRecord(record);
+		$app.logger().info(
+			'Added slug to article:',
+			'title',
+			title,
+			'slug',
+			slug
+		);
+	}
+
+	for (const record of chaptersRecords) {
+		const title = record.get('title');
+		const slug = slugify(title);
+		record.set('slug', slug);
+
+		$app.dao().saveRecord(record);
+		$app.logger().info(
+			'Added slug to article:',
+			'title',
+			title,
+			'slug',
+			slug
+		);
+	}
+});
+
+onRecordAfterCreateRequest(
+	(e) => {
+		function slugify(str) {
+			return String(str)
+				.normalize('NFKD') // split accented characters into their base characters and diacritical marks
+				.replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+				.trim() // trim leading or trailing whitespace
+				.toLowerCase() // convert to lowercase
+				.replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+				.replace(/\s+/g, '-') // replace spaces with hyphens
+				.replace(/-+/g, '-'); // remove consecutive hyphens
+		}
+		const record = e.record;
+		const title = record.get('title');
+		const slug = slugify(title);
+		record.set('slug', slug);
+
+		$app.dao().saveRecord(record);
+	},
+	'chapters',
+	'articles'
+);
+
+onRecordAfterUpdateRequest(
+	(e) => {
+		function slugify(str) {
+			return String(str)
+				.normalize('NFKD') // split accented characters into their base characters and diacritical marks
+				.replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+				.trim() // trim leading or trailing whitespace
+				.toLowerCase() // convert to lowercase
+				.replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+				.replace(/\s+/g, '-') // replace spaces with hyphens
+				.replace(/-+/g, '-'); // remove consecutive hyphens
+		}
+		const record = e.record;
+		const title = record.get('title');
+		const slug = slugify(title);
+		record.set('slug', slug);
+
+		$app.dao().saveRecord(record);
+	},
+	'chapters',
+	'articles'
+);

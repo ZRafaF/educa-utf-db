@@ -1,6 +1,89 @@
+## v0.21.1
+
+- Small fix for the Admin UI related to the _Settings > Sync_ menu not being visible even when the "Hide controls" toggle is off.
+
+
+## v0.21.0
+
+- Added Bitbucket OAuth2 provider ([#3948](https://github.com/pocketbase/pocketbase/pull/3948); thanks @aabajyan).
+
+- Mark user as verified on confirm password reset ([#4066](https://github.com/pocketbase/pocketbase/issues/4066)).
+  _If the user email has changed after issuing the reset token (eg. updated by an admin), then the `verified` user state remains unchanged._
+
+- Added support for loading a serialized json payload for `multipart/form-data` requests using the special `@jsonPayload` key.
+  _This is intended to be used primarily by the SDKs to resolve [js-sdk#274](https://github.com/pocketbase/js-sdk/issues/274)._
+
+- Added graceful OAuth2 redirect error handling ([#4177](https://github.com/pocketbase/pocketbase/issues/4177)).
+  _Previously on redirect error we were returning directly a standard json error response. Now on redirect error we'll redirect to a generic OAuth2 failure screen (similar to the success one) and will attempt to auto close the OAuth2 popup._
+  _The SDKs are also updated to handle the OAuth2 redirect error and it will be returned as Promise rejection of the `authWithOAuth2()` call._
+
+- Exposed `$apis.gzip()` and `$apis.bodyLimit(bytes)` middlewares to the JSVM.
+
+- Added `TestMailer.SentMessages` field that holds all sent test app emails until cleanup.
+
+- Optimized the cascade delete of records with multiple `relation` fields.
+
+- Updated the `serve` and `admin` commands error reporting.
+
+- Minor Admin UI improvements (reduced the min table row height, added option to duplicate fields, added new TinyMCE codesample plugin languages, hide the collection sync settings when the `Settings.Meta.HideControls` is enabled, etc.)
+
+
+## v0.20.7
+
+- Fixed the Admin UI auto indexes update when renaming fields with a common prefix ([#4160](https://github.com/pocketbase/pocketbase/issues/4160)).
+
+
+## v0.20.6
+
+- Fixed JSVM types generation for functions with omitted arg types ([#4145](https://github.com/pocketbase/pocketbase/issues/4145)).
+
+- Updated Go deps.
+
+
+## v0.20.5
+
+- Minor CSS fix for the Admin UI to prevent the searchbar within a popup from expanding too much and pushing the controls out of the visible area ([#4079](https://github.com/pocketbase/pocketbase/issues/4079#issuecomment-1876994116)).
+
+
+## v0.20.4
+
+- Small fix for a regression introduced with the recent `json` field changes that was causing View collection column expressions recognized as `json` to fail to resolve ([#4072](https://github.com/pocketbase/pocketbase/issues/4072)).
+
+
+## v0.20.3
+
+- Fixed the `json` field query comparisons to work correctly with plain JSON values like `null`, `bool` `number`, etc. ([#4068](https://github.com/pocketbase/pocketbase/issues/4068)).
+  Since there are plans in the future to allow custom SQLite builds and also in some situations it may be useful to be able to distinguish `NULL` from `''`,
+  for the `json` fields (and for any other future non-standard field) we no longer apply `COALESCE` by default, aka.:
+  ```
+  Dataset:
+  1) data: json(null)
+  2) data: json('')
+
+  For the filter "data = null" only 1) will resolve to TRUE.
+  For the filter "data = ''"   only 2) will resolve to TRUE.
+  ```
+
+- Minor Go tests improvements
+  - Sorted the record cascade delete references to ensure that the delete operation will preserve the order of the fired events when running the tests.
+  - Marked some of the tests as safe for parallel execution to speed up a little the GitHub action build times.
+
+
+## v0.20.2
+
+- Added `sleep(milliseconds)` JSVM binding.
+  _It works the same way as Go `time.Sleep()`, aka. it pauses the goroutine where the JSVM code is running._
+
+- Fixed multi-line text paste in the Admin UI search bar ([#4022](https://github.com/pocketbase/pocketbase/discussions/4022)).
+
+- Fixed the monospace font loading in the Admin UI.
+
+- Fixed various reported docs and code comment typos.
+
+
 ## v0.20.1
 
-- Added `--dev` flag and its accompanying `app.IsDev()` method (_in place of the previosly removed `--debug`_) to assist during development ([#3918](https://github.com/pocketbase/pocketbase/discussions/3918)).
+- Added `--dev` flag and its accompanying `app.IsDev()` method (_in place of the previously removed `--debug`_) to assist during development ([#3918](https://github.com/pocketbase/pocketbase/discussions/3918)).
   The `--dev` flag prints in the console "everything" and more specifically:
   - the data DB SQL statements
   - all `app.Logger().*` logs (debug, info, warning, error, etc.), no matter of the logs persistence settings in the Admin UI
@@ -9,7 +92,7 @@
   - Fixed the log `error` label text wrapping.
   - Added the log `referer` (_when it is from a different source_) and `details` labels in the logs listing.
   - Removed the blank current time entry from the logs chart because it was causing confusion when used with custom time ranges.
-  - Updated the SQL syntax highligher and keywords autocompletion in the Admin UI to recognize `CAST(x as bool)` expressions.
+  - Updated the SQL syntax highlighter and keywords autocompletion in the Admin UI to recognize `CAST(x as bool)` expressions.
 
 - Replaced the default API tests timeout with a new `ApiScenario.Timeout` option ([#3930](https://github.com/pocketbase/pocketbase/issues/3930)).
   A negative or zero value means no tests timeout.
@@ -165,7 +248,7 @@
 
 - Added the release notes to the console output of `./pocketbase update` ([#3685](https://github.com/pocketbase/pocketbase/discussions/3685)).
 
-- Added missing documention for the JSVM `$mails.*` bindings.
+- Added missing documentation for the JSVM `$mails.*` bindings.
 
 - Relaxed the OAuth2 redirect url validation to allow any string value ([#3689](https://github.com/pocketbase/pocketbase/pull/3689); thanks @sergeypdev).
   _Note that the redirect url format is still bound to the accepted values by the specific OAuth2 provider._
