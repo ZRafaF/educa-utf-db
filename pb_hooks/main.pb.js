@@ -40,31 +40,87 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 	const isUtfUserValid = (username, password) => {
 		const UTF_AUTH_TOKEN = $os.getenv('UTF_AUTH_TOKEN');
 
-		const res = $http.send({
-			url: 'https://unions.netfy.me/api/',
-			method: 'GET',
-			body: JSON.stringify({
-				token: UTF_AUTH_TOKEN,
-				option: 'is_user',
-				user: username,
-				pass: password,
-			}),
-			headers: { 'content-type': 'application/json' },
-			timeout: 30,
-		});
+		const oldApi = () => {
+			// This api is DEPRECATED
 
-		const jsonResponse = res.json[0];
+			const res = $http.send({
+				url: 'https://unions.netfy.me/api/',
+				method: 'GET',
+				body: JSON.stringify({
+					token: UTF_AUTH_TOKEN,
+					option: 'is_user',
+					user: username,
+					pass: password,
+				}),
+				headers: { 'content-type': 'application/json' },
+				timeout: 30,
+			});
 
-		if (!jsonResponse.acesso_api)
-			throw new BadRequestError("UTFPR's API Token is not valid");
+			const jsonResponse = res.json[0];
 
-		if (!jsonResponse.status_api)
-			throw new BadRequestError("UTFPR's API is not working properly");
+			if (!jsonResponse.acesso_api) {
+				$app.logger().error('UTFPR API Token is not valid');
+				throw new BadRequestError("UTFPR's API Token is not valid");
+			}
 
-		if (!jsonResponse.allow_login)
-			throw new BadRequestError('Invalid user or password');
+			if (!jsonResponse.status_api) {
+				$app.logger().error('UTFPR API is not working properly');
+				throw new BadRequestError(
+					"UTFPR's API is not working properly"
+				);
+			}
 
-		return true;
+			if (!jsonResponse.allow_login) {
+				$app.logger().error('Invalid user or password');
+				throw new UnauthorizedError('Invalid user or password');
+			}
+			return true;
+		};
+
+		const newApi = () => {
+			const res = $http.send({
+				url: 'https://educautf.td.utfpr.edu.br/umc-api/auth',
+				method: 'POST',
+				body: JSON.stringify({
+					api_key: UTF_AUTH_TOKEN,
+					username: username,
+					password: password,
+				}),
+				headers: { 'content-type': 'application/json' },
+				timeout: 30,
+			});
+
+			if (res.statusCode === 200) {
+				return true;
+			}
+			if (res.statusCode === 401) {
+				if (res.json.error === 'Invalid API key.') {
+					$app.logger().error('Invalid API key', res.json);
+					throw new UnauthorizedError('Invalid API key', res.json);
+				}
+				$app.logger().error('Invalid user or password', res.json);
+				throw new UnauthorizedError(
+					'Invalid user or password',
+					res.json
+				);
+			}
+			if (res.statusCode === 400) {
+				$app.logger().error('Invalid request', res.json);
+				throw new BadRequestError('Invalid request', res.json);
+			}
+			if (res.statusCode === 500) {
+				$app.logger().error('Internal server error', res.json);
+				throw new InternalServerError(
+					'Internal server error',
+					res.json
+				);
+			}
+
+			throw new InternalServerError('Unknown error');
+		};
+
+		// return oldApi();
+		return newApi();
 	};
 	const data = $apis.requestInfo(c)?.data;
 	if (data === undefined) return c.json(500, {});
@@ -95,6 +151,7 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 		return c.json(500, {});
 	}
 
+	$app.logger().info('User authenticated', 'username', username);
 	// const newToken = $tokens.recordAuthToken($app, record);
 	// return c.json(200, { token: newToken, record: authUserRecord });
 	return $apis.recordAuthResponse($app, c, authUserRecord, null);
@@ -367,7 +424,7 @@ onAfterBootstrap((e) => {
 
 	const articlesRecords = $app.dao().findRecordsByFilter(
 		'articles', // collection
-		"slug = ''", // filter
+		"slug = '' || description_slug = ''", // filter
 		'+created', // sort
 		0, // limit
 		0 // limit
@@ -375,7 +432,7 @@ onAfterBootstrap((e) => {
 
 	const chaptersRecords = $app.dao().findRecordsByFilter(
 		'chapters', // collection
-		"slug = ''", // filter
+		"slug = '' || description_slug = ''", // filter
 		'+created', // sort
 		0, // limit
 		0 // limit
@@ -385,6 +442,10 @@ onAfterBootstrap((e) => {
 		const title = record.get('title');
 		const slug = slugify(title);
 		record.set('slug', slug);
+
+		const description = record.get('description');
+		const descriptionSlug = slugify(description);
+		record.set('description_slug', descriptionSlug);
 
 		$app.dao().saveRecord(record);
 		$app.logger().info(
@@ -400,6 +461,10 @@ onAfterBootstrap((e) => {
 		const title = record.get('title');
 		const slug = slugify(title);
 		record.set('slug', slug);
+
+		const description = record.get('description');
+		const descriptionSlug = slugify(description);
+		record.set('description_slug', descriptionSlug);
 
 		$app.dao().saveRecord(record);
 		$app.logger().info(
@@ -425,9 +490,14 @@ onRecordAfterCreateRequest(
 				.replace(/-+/g, '-'); // remove consecutive hyphens
 		}
 		const record = e.record;
+
 		const title = record.get('title');
 		const slug = slugify(title);
 		record.set('slug', slug);
+
+		const description = record.get('description');
+		const descriptionSlug = slugify(description);
+		record.set('description_slug', descriptionSlug);
 
 		$app.dao().saveRecord(record);
 	},
@@ -448,9 +518,14 @@ onRecordAfterUpdateRequest(
 				.replace(/-+/g, '-'); // remove consecutive hyphens
 		}
 		const record = e.record;
+
 		const title = record.get('title');
 		const slug = slugify(title);
 		record.set('slug', slug);
+
+		const description = record.get('description');
+		const descriptionSlug = slugify(description);
+		record.set('description_slug', descriptionSlug);
 
 		$app.dao().saveRecord(record);
 	},
