@@ -91,7 +91,9 @@ routerAdd('POST', 'api/educautf/utfpr-auth', (c) => {
 			});
 
 			if (res.statusCode === 200) {
-				return true;
+				if (res.json.allow_login === true) return true;
+
+				return false;
 			}
 			if (res.statusCode === 401) {
 				if (res.json.error === 'Invalid API key.') {
@@ -453,7 +455,9 @@ onAfterBootstrap((e) => {
 			'title',
 			title,
 			'slug',
-			slug
+			slug,
+			'description',
+			descriptionSlug
 		);
 	}
 
