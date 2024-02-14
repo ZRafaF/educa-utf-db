@@ -211,8 +211,12 @@ routerAdd('POST', 'api/educautf/views', (c) => {
 	$app.dao().runInTransaction((txDao) => {
 		const record = txDao.findRecordById(collectionName, recordId);
 
-		record.set('views', record.getInt('views') + 1);
-		txDao.saveRecord(record);
+		const viewsRecord = txDao.findRecordById(
+			'views',
+			record.get('views_id')
+		);
+		viewsRecord.set('total', viewsRecord.getInt('total') + 1);
+		txDao.saveRecord(viewsRecord);
 
 		const latest_views_collection =
 			txDao.findCollectionByNameOrId('latest_views');
@@ -412,6 +416,7 @@ routerAdd('POST', 'api/educautf/likes', (c) => {
 	});
 });
 
+// Slug backwards compat
 onAfterBootstrap((e) => {
 	function slugify(str) {
 		return String(str)
@@ -536,3 +541,62 @@ onRecordAfterUpdateRequest(
 	'chapters',
 	'articles'
 );
+
+// Views backwards compat
+onAfterBootstrap((e) => {
+	const articlesRecords = $app.dao().findRecordsByFilter(
+		'articles', // collection
+		"views_id = ''", // filter
+		'+created', // sort
+		0, // limit
+		0 // limit
+	);
+
+	const chaptersRecords = $app.dao().findRecordsByFilter(
+		'chapters', // collection
+		"views_id = ''", // filter
+		'+created', // sort
+		0, // limit
+		0 // limit
+	);
+
+	const viewsCollection = $app.dao().findCollectionByNameOrId('views');
+
+	for (const record of articlesRecords) {
+		$app.dao().runInTransaction((txDao) => {
+			const viewsRecord = new Record(viewsCollection, {
+				article: record.id,
+			});
+			txDao.saveRecord(viewsRecord);
+
+			record.set('views_id', viewsRecord.id);
+			txDao.saveRecord(record);
+			$app.logger().info(
+				'Added views_id to article:',
+				'article',
+				record.id,
+				'views_id',
+				viewsRecord.id
+			);
+		});
+	}
+	for (const record of chaptersRecords) {
+		$app.dao().runInTransaction((txDao) => {
+			const viewsRecord = new Record(viewsCollection, {
+				chapter: record.id,
+			});
+			txDao.saveRecord(viewsRecord);
+
+			record.set('views_id', viewsRecord.id);
+			txDao.saveRecord(record);
+
+			$app.logger().info(
+				'Added views_id to chapter:',
+				'chapter',
+				record.id,
+				'views_id',
+				viewsRecord.id
+			);
+		});
+	}
+});
