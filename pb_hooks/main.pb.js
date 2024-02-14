@@ -211,10 +211,7 @@ routerAdd('POST', 'api/educautf/views', (c) => {
 	$app.dao().runInTransaction((txDao) => {
 		const record = txDao.findRecordById(collectionName, recordId);
 
-		const viewsRecord = txDao.findRecordById(
-			'views',
-			record.get('views_id')
-		);
+		const viewsRecord = txDao.findRecordById('views', record.get('views'));
 		viewsRecord.set('total', viewsRecord.getInt('total') + 1);
 		txDao.saveRecord(viewsRecord);
 
@@ -546,7 +543,7 @@ onRecordAfterUpdateRequest(
 onAfterBootstrap((e) => {
 	const articlesRecords = $app.dao().findRecordsByFilter(
 		'articles', // collection
-		"views_id = ''", // filter
+		"views = ''", // filter
 		'+created', // sort
 		0, // limit
 		0 // limit
@@ -554,7 +551,7 @@ onAfterBootstrap((e) => {
 
 	const chaptersRecords = $app.dao().findRecordsByFilter(
 		'chapters', // collection
-		"views_id = ''", // filter
+		"views = ''", // filter
 		'+created', // sort
 		0, // limit
 		0 // limit
@@ -569,13 +566,13 @@ onAfterBootstrap((e) => {
 			});
 			txDao.saveRecord(viewsRecord);
 
-			record.set('views_id', viewsRecord.id);
+			record.set('views', viewsRecord.id);
 			txDao.saveRecord(record);
 			$app.logger().info(
-				'Added views_id to article:',
+				'Added views to article:',
 				'article',
 				record.id,
-				'views_id',
+				'views',
 				viewsRecord.id
 			);
 		});
@@ -587,16 +584,41 @@ onAfterBootstrap((e) => {
 			});
 			txDao.saveRecord(viewsRecord);
 
-			record.set('views_id', viewsRecord.id);
+			record.set('views', viewsRecord.id);
 			txDao.saveRecord(record);
 
 			$app.logger().info(
-				'Added views_id to chapter:',
+				'Added views to chapter:',
 				'chapter',
 				record.id,
-				'views_id',
+				'views',
 				viewsRecord.id
 			);
 		});
 	}
 });
+
+onRecordAfterCreateRequest(
+	(e) => {
+		const record = e.record;
+		const viewsCollection = $app.dao().findCollectionByNameOrId('views');
+
+		const data =
+			e.collection.name === 'articles'
+				? {
+						article: record.id,
+				  }
+				: {
+						chapter: record.id,
+				  };
+		$app.dao().runInTransaction((txDao) => {
+			const viewsRecord = new Record(viewsCollection, data);
+			txDao.saveRecord(viewsRecord);
+
+			record.set('views', viewsRecord.id);
+			txDao.saveRecord(record);
+		});
+	},
+	'chapters',
+	'articles'
+);
